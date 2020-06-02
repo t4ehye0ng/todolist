@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -110,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
             setState(() {
               _selectedTime = dateTime;
             });
+            alert();
           });
         },
         tooltip: 'Show date picker',
@@ -119,5 +121,39 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // ),
     );
+  }
+
+  void alert() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Date selected'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('This is a alert dialog.'),
+                    Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(_selectedTime)),
+                    Text('Press OK button.'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                FlatButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ]);
+        });
   }
 }
