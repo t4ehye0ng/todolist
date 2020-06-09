@@ -62,35 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
 
+    //TaskManager.addSampleTasks();
+
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),
       ),
-      body: new ListView(
-        scrollDirection: Axis.vertical,
-        children: <Widget>[
-          ListTile(
-              leading: Icon(Icons.home),
-              title: Text('집에서 할 일'),
-              trailing: Icon(Icons.navigate_next),
-              onTap: () {}),
-          ListTile(
-              leading: Icon(Icons.work),
-              title: Text('회사에서 할 일'),
-              trailing: Icon(Icons.navigate_next),
-              onTap: () {}),
-          ListTile(
-              leading: Icon(Icons.group_work),
-              title: Text('그룹 활동에서 할 일'),
-              trailing: Icon(Icons.navigate_next),
-              onTap: () {})
-        ],
-      ),
-      // new Column(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   mainAxisSize: MainAxisSize.max,
-      //   crossAxisAlignment: CrossAxisAlignment.stretch,
-      // ),
+      body: BodyLayout(),
       floatingActionButton: FloatingActionButton(
         // onPressed: _incrementCounter,
         onPressed: () {
@@ -117,9 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-      // bottomNavigationBar: new BottomNavigationBar(
-
-      // ),
+      // bottomNavigationBar: new BottomNavigationBar(),
     );
   }
 
@@ -155,5 +131,105 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ]);
         });
+  }
+}
+
+final List<String> _listTaskName = [];
+final List<DateTime> _listDueDate = [];
+
+class BodyLayout extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return _myListView(context);
+  }
+}
+
+Widget _myListView(BuildContext context) {
+  // backing data
+  final europeanCountries = [
+    'Albania',
+    'Andorra',
+    'Armenia',
+    'Austria',
+    'Azerbaijan',
+    'Belarus',
+    'Belgium',
+    'Bosnia and Herzegovina',
+    'Bulgaria',
+    'Croatia',
+    'Cyprus',
+    'Czech Republic',
+    'Denmark',
+    'Estonia',
+    'Finland',
+    'France',
+    'Georgia',
+    'Germany',
+    'Greece',
+    'Hungary',
+    'Iceland',
+    'Ireland',
+    'Italy',
+    'Kazakhstan',
+    'Kosovo',
+    'Latvia',
+    'Liechtenstein',
+    'Lithuania',
+    'Luxembourg',
+    'Macedonia',
+    'Malta',
+    'Moldova',
+    'Monaco',
+    'Montenegro',
+    'Netherlands',
+    'Norway',
+    'Poland',
+    'Portugal',
+    'Romania',
+    'Russia',
+    'San Marino',
+    'Serbia',
+    'Slovakia',
+    'Slovenia',
+    'Spain',
+    'Sweden',
+    'Switzerland',
+    'Turkey',
+    'Ukraine',
+    'United Kingdom',
+    'Vatican City'
+  ];
+  return ListView.builder(
+    itemCount: europeanCountries.length,
+    itemBuilder: (context, index) {
+      return ListTile(
+        title: Text(europeanCountries[index]),
+      );
+    },
+  );
+}
+
+class TaskManager extends _MyHomePageState {
+  // TaskManager() {};
+
+  void addTask(String taskName, dueDate) {
+    // void addTask() {
+    // debugPrint(taskName);
+    _listTaskName.clear();
+
+    // this._listTaskName.add('2');
+    _listTaskName.add(taskName);
+    // _listDueDate.add(dueDate);
+    // if (!dueDate) _listDueDate.add(DateTime.now());
+    // else _listDueDate.add(dueDate);
+
+    return;
+  }
+
+  void addSampleTasks() {
+    // var str1 = "집에서 할 일";
+    // addTask(str1, new DateTime.now());
+    addTask("회사에서 할 일", DateTime.now());
+    // addTask("활동에서 할 일", DateTime.now());
   }
 }
