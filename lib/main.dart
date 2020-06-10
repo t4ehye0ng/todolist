@@ -71,26 +71,30 @@ class _MyHomePageState extends State<MyHomePage> {
       body: BodyLayout(),
       floatingActionButton: FloatingActionButton(
         // onPressed: _incrementCounter,
-        onPressed: () {
-          Future<DateTime> selectedDate = showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2018),
-            lastDate: DateTime(2030),
-            builder: (BuildContext context, Widget child) {
-              return Theme(
-                data: ThemeData.dark(),
-                child: child,
-              );
-            },
-          );
+        onPressed: () async {
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => CreateTask()));
+          setState(() {});
+          // CreateTask().build(context);
+          // Future<DateTime> selectedDate = showDatePicker(
+          //   context: context,
+          //   initialDate: DateTime.now(),
+          //   firstDate: DateTime(2018),
+          //   lastDate: DateTime(2030),
+          //   builder: (BuildContext context, Widget child) {
+          //     return Theme(
+          //       data: ThemeData.dark(),
+          //       child: child,
+          //     );
+          //   },
+          // );
 
-          selectedDate.then((dateTime) {
-            setState(() {
-              _selectedTime = dateTime;
-            });
-            alert();
-          });
+          // selectedDate.then((dateTime) {
+          //   setState(() {
+          //     _selectedTime = dateTime;
+          //   });
+          //   alert();
+          // });
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
@@ -134,8 +138,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-final List<String> _listTaskName = [];
-final List<DateTime> _listDueDate = [];
+final List<String> _listTaskName = ["집에서 할 일", "회사에서 할 일", "그룹에서 할 일"];
+// final List<DateTime> _listDueDate = [];
 
 class BodyLayout extends StatelessWidget {
   @override
@@ -145,68 +149,53 @@ class BodyLayout extends StatelessWidget {
 }
 
 Widget _myListView(BuildContext context) {
-  // backing data
-  final europeanCountries = [
-    'Albania',
-    'Andorra',
-    'Armenia',
-    'Austria',
-    'Azerbaijan',
-    'Belarus',
-    'Belgium',
-    'Bosnia and Herzegovina',
-    'Bulgaria',
-    'Croatia',
-    'Cyprus',
-    'Czech Republic',
-    'Denmark',
-    'Estonia',
-    'Finland',
-    'France',
-    'Georgia',
-    'Germany',
-    'Greece',
-    'Hungary',
-    'Iceland',
-    'Ireland',
-    'Italy',
-    'Kazakhstan',
-    'Kosovo',
-    'Latvia',
-    'Liechtenstein',
-    'Lithuania',
-    'Luxembourg',
-    'Macedonia',
-    'Malta',
-    'Moldova',
-    'Monaco',
-    'Montenegro',
-    'Netherlands',
-    'Norway',
-    'Poland',
-    'Portugal',
-    'Romania',
-    'Russia',
-    'San Marino',
-    'Serbia',
-    'Slovakia',
-    'Slovenia',
-    'Spain',
-    'Sweden',
-    'Switzerland',
-    'Turkey',
-    'Ukraine',
-    'United Kingdom',
-    'Vatican City'
-  ];
   return ListView.builder(
-    itemCount: europeanCountries.length,
+    itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
-      return ListTile(
-        title: Text(europeanCountries[index]),
-      );
+      return Card(
+          child: ListTile(
+        title: Text(_listTaskName[index]),
+      ));
     },
   );
+}
+
+class CreateTask extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final _myController = TextEditingController();
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Create a new task'),
+        ),
+        body: Column(children: <Widget>[
+          TextField(
+            controller: _myController,
+            decoration: InputDecoration(labelText: 'Enter a task name'),
+            //controller: _take,
+            // validator: (_formKey) {
+            //   if (_formKey.isEmpty) {
+            //     return 'You must enter at least a letter';
+            //   }
+            // },
+          ),
+          Row(children: [
+            RaisedButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.pop(context);
+                }),
+            RaisedButton(
+                child: Text('OK'),
+                onPressed: () async {
+                  _listTaskName.add(_myController.text);
+                  print(_listTaskName);
+
+                  Navigator.pop(context);
+                }),
+          ])
+        ]));
+  }
 }
 
 class TaskManager extends _MyHomePageState {
