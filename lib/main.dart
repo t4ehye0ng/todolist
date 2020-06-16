@@ -161,7 +161,7 @@ Widget _myListView(BuildContext context) {
               .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
         background: Container(color: Colors.red),
-        child: ListTile(title: Text(task)),
+        child: Card(child: ListTile(title: Text(task))),
       );
       // return Card(
       //     child: ListTile(
