@@ -152,10 +152,21 @@ Widget _myListView(BuildContext context) {
   return ListView.builder(
     itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
-      return Card(
-          child: ListTile(
-        title: Text(_listTaskName[index]),
-      ));
+      final task = _listTaskName[index];
+      return Dismissible(
+        key: Key(task),
+        onDismissed: (direction) {
+          _listTaskName.removeAt(index);
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text("$task dismissed")));
+        },
+        background: Container(color: Colors.red),
+        child: ListTile(title: Text(task)),
+      );
+      // return Card(
+      //     child: ListTile(
+      //   title: Text(task),
+      // ));
     },
   );
 }
