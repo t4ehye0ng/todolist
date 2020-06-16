@@ -160,7 +160,7 @@ Widget _myListView(BuildContext context) {
           Scaffold.of(context)
               .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
-        background: Container(color: Colors.red),
+        background: Card(color: Colors.blueGrey),
         child: Card(child: ListTile(title: Text(task))),
       );
       // return Card(
