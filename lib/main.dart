@@ -1,33 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+final _databaseReference = Firestore.instance;
+final _dbCollection = "todo";
+// final dbDocument = "EZcaJ0qyUWa2g2Pj7CMP";
 
 void main() {
-  runApp(MyApp());
+  runApp(ToDo());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class ToDo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    getData();
     return MaterialApp(
-      title: 'TODO LIST',
+      title: 'TO DO LIST by TKAY',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Flutter TODO LIST'),
+      home: MyHomePage(title: 'TO DO LIST by TKAY'),
     );
   }
 }
@@ -55,15 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
-    //TaskManager.addSampleTasks();
-
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),
@@ -75,26 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
           await Navigator.push(
               context, MaterialPageRoute(builder: (context) => CreateTask()));
           setState(() {});
-          // CreateTask().build(context);
-          // Future<DateTime> selectedDate = showDatePicker(
-          //   context: context,
-          //   initialDate: DateTime.now(),
-          //   firstDate: DateTime(2018),
-          //   lastDate: DateTime(2030),
-          //   builder: (BuildContext context, Widget child) {
-          //     return Theme(
-          //       data: ThemeData.dark(),
-          //       child: child,
-          //     );
-          //   },
-          // );
-
-          // selectedDate.then((dateTime) {
-          //   setState(() {
-          //     _selectedTime = dateTime;
-          //   });
-          //   alert();
-          // });
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
@@ -138,17 +102,107 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-final List<String> _listTaskName = ["집에서 할 일", "회사에서 할 일", "그룹에서 할 일"];
-// final List<DateTime> _listDueDate = [];
+final List<String> _listTaskName = [];
+
+// TODO: Make this function async
+void getData() {
+  _databaseReference
+      .collection(_dbCollection)
+      .getDocuments()
+      .then((QuerySnapshot snapshot) {
+    _listTaskName.clear();
+    snapshot.documents.forEach(
+        (element) => {_listTaskName.add(element.data['taskName'].toString())});
+  });
+}
+
+void createRecord(_taskName) async {
+  // await _databaseReference.collection(_dbCollection).document("1").setData({
+  //   'taskName': _taskName,
+  // });
+
+  DocumentReference ref =
+      await _databaseReference.collection(_dbCollection).add({
+    'taskName': _taskName,
+  });
+  print(ref.documentID);
+}
+
+void deleteData(_taskName) {
+  try {
+    print("trying deleteData");
+    _databaseReference
+        .collection(_dbCollection)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((element) {
+        if (element.data.containsValue(_taskName)) {
+          print("found: " + element.data.values.toString());
+          element.data.clear();
+          // } else {
+          //   print("no: " + element.data.values.toString());
+        }
+      });
+    });
+    // print("deleteData");
+    // print(_taskName);
+    // _databaseReference.collection(_dbCollection).document(_taskName).delete();
+  } catch (e) {
+    print(e.toString());
+  }
+}
+// void deleteData(_taskName) async {
+//   await Firestore.instance.runTransaction((Transaction myTransaction) async {
+//     await myTransaction.delete(snapshot.data.documents[index].reference);
+//   });
+// }
 
 class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    getData();
+    // QuerySnapshot documents = await getData();
+    // StreamBuilder<QuerySnapshot>(
+    //     stream: Firestore.instance.collection(_dbCollection).snapshots(),
+    //     builder: (context, snapshot) {
+    //       if (!snapshot.hasData) {
+    //         return CircularProgressIndicator();
+    //       }
+    //       // final documents = snapshot.data.documents;
+    //       // documents.map((doc) => _listTaskName.add(doc.toString()));
+    //       // print(documents);
+
+    //       // return _myListView(context, documents);
+    //       //   // return Expanded(
+    //       //   //     child: ListView(
+    //       //   //   children:
+    //       //   //       documents.map((doc) =>
+
+    //       //   //       _buildItemWidget(doc, context)).toList(),
+    //       //   // ));
+    //     });
     return _myListView(context);
   }
 }
 
+// Widget _buildItemWidget(DocumentSnapshot doc, BuildContext context) {
+//   final taskName = doc['taskName'];
+//   return Dismissible(
+//     key: Key(taskName),
+//     onDismissed: (direction) {
+//       deleteData(taskName);
+//       // _listTaskName.removeAt(index);
+//       Scaffold.of(context)
+//           .showSnackBar(SnackBar(content: Text("$taskName dismissed")));
+//     },
+//     background: Card(color: Colors.blueGrey),
+//     child: Card(child: ListTile(title: Text(taskName))),
+//   );
+// }
+
 Widget _myListView(BuildContext context) {
+  print("_myListView");
+
   return ListView.builder(
     itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
@@ -156,20 +210,57 @@ Widget _myListView(BuildContext context) {
       return Dismissible(
         key: Key(task),
         onDismissed: (direction) {
-          _listTaskName.removeAt(index);
+          // _listTaskName.removeAt(index);
+          // deleteData(task);
           Scaffold.of(context)
               .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
         background: Card(color: Colors.blueGrey),
         child: Card(child: ListTile(title: Text(task))),
       );
-      // return Card(
-      //     child: ListTile(
-      //   title: Text(task),
-      // ));
     },
   );
 }
+
+// StreamBuilder<QuerySnapshot> (
+//   stream: Firestore.instance.collection('todo').snapshots(),
+//   builder: (context, snapshot) {
+//     if (!snapshot.hasData) {
+//       return CircularProgressIndicator();
+//     }
+//     final documents = snapshot.data.documents;
+//     return Expanded(
+//       child: documents.map((doc) =>
+//       _buildItemWidget(doc)
+//       )
+//     );
+//   }
+// )
+// (sstream: Firestore.instance.collection('todo').snapshots(),
+// builder: )
+
+// Widget _myListView(BuildContext context) {
+//   return ListView.builder(
+//     itemCount: _listTaskName.length,
+//     itemBuilder: (context, index) {
+//       final task = _listTaskName[index];
+//       return Dismissible(
+//         key: Key(task),
+//         onDismissed: (direction) {
+//           _listTaskName.removeAt(index);
+//           Scaffold.of(context)
+//               .showSnackBar(SnackBar(content: Text("$task dismissed")));
+//         },
+//         background: Card(color: Colors.blueGrey),
+//         child: Card(child: ListTile(title: Text(task))),
+//       );
+//       // return Card(
+//       //     child: ListTile(
+//       //   title: Text(task),
+//       // ));
+//     },
+//   );
+// }
 
 class CreateTask extends StatelessWidget {
   @override
@@ -202,6 +293,8 @@ class CreateTask extends StatelessWidget {
                   _listTaskName.add(_myController.text);
                   print(_listTaskName);
 
+                  createRecord(_myController.text);
+
                   Navigator.pop(context);
                 }),
           ])
@@ -224,12 +317,5 @@ class TaskManager extends _MyHomePageState {
     // else _listDueDate.add(dueDate);
 
     return;
-  }
-
-  void addSampleTasks() {
-    // var str1 = "집에서 할 일";
-    // addTask(str1, new DateTime.now());
-    addTask("회사에서 할 일", DateTime.now());
-    // addTask("활동에서 할 일", DateTime.now());
   }
 }
