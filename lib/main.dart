@@ -105,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
 final List<String> _listTaskName = [];
 
 // TODO: Make this function async
-void getData() {
+Future<void> getData() async {
   _databaseReference
       .collection(_dbCollection)
       .getDocuments()
@@ -116,11 +116,7 @@ void getData() {
   });
 }
 
-void createRecord(_taskName) async {
-  // await _databaseReference.collection(_dbCollection).document("1").setData({
-  //   'taskName': _taskName,
-  // });
-
+Future<void> createRecord(_taskName) async {
   DocumentReference ref =
       await _databaseReference.collection(_dbCollection).add({
     'taskName': _taskName,
@@ -128,90 +124,52 @@ void createRecord(_taskName) async {
   print(ref.documentID);
 }
 
-void deleteData(_taskName) {
+Future<void> deleteData(_taskName, index) async {
   try {
     print("trying deleteData");
     _databaseReference
         .collection(_dbCollection)
         .getDocuments()
-        .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((element) {
-        if (element.data.containsValue(_taskName)) {
-          print("found: " + element.data.values.toString());
-          element.data.clear();
-          // } else {
-          //   print("no: " + element.data.values.toString());
-        }
+        .then((QuerySnapshot snapshot) async {
+      var d = snapshot.documents[index];
+      print(d);
+      await Firestore.instance
+          .runTransaction((Transaction myTransaction) async {
+        await myTransaction.delete(d.reference);
       });
     });
-    // print("deleteData");
-    // print(_taskName);
-    // _databaseReference.collection(_dbCollection).document(_taskName).delete();
   } catch (e) {
     print(e.toString());
   }
 }
-// void deleteData(_taskName) async {
-//   await Firestore.instance.runTransaction((Transaction myTransaction) async {
-//     await myTransaction.delete(snapshot.data.documents[index].reference);
-//   });
-// }
 
 class BodyLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    getData();
-    // QuerySnapshot documents = await getData();
-    // StreamBuilder<QuerySnapshot>(
-    //     stream: Firestore.instance.collection(_dbCollection).snapshots(),
-    //     builder: (context, snapshot) {
-    //       if (!snapshot.hasData) {
-    //         return CircularProgressIndicator();
-    //       }
-    //       // final documents = snapshot.data.documents;
-    //       // documents.map((doc) => _listTaskName.add(doc.toString()));
-    //       // print(documents);
-
-    //       // return _myListView(context, documents);
-    //       //   // return Expanded(
-    //       //   //     child: ListView(
-    //       //   //   children:
-    //       //   //       documents.map((doc) =>
-
-    //       //   //       _buildItemWidget(doc, context)).toList(),
-    //       //   // ));
-    //     });
-    return _myListView(context);
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection(_dbCollection).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return CircularProgressIndicator();
+          }
+          final documents = snapshot.data.documents;
+          _listTaskName.clear();
+          documents.forEach(
+              (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
+          return _myListView(context);
+        });
   }
 }
 
-// Widget _buildItemWidget(DocumentSnapshot doc, BuildContext context) {
-//   final taskName = doc['taskName'];
-//   return Dismissible(
-//     key: Key(taskName),
-//     onDismissed: (direction) {
-//       deleteData(taskName);
-//       // _listTaskName.removeAt(index);
-//       Scaffold.of(context)
-//           .showSnackBar(SnackBar(content: Text("$taskName dismissed")));
-//     },
-//     background: Card(color: Colors.blueGrey),
-//     child: Card(child: ListTile(title: Text(taskName))),
-//   );
-// }
-
 Widget _myListView(BuildContext context) {
-  print("_myListView");
-
   return ListView.builder(
     itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
       final task = _listTaskName[index];
       return Dismissible(
-        key: Key(task),
-        onDismissed: (direction) {
-          // _listTaskName.removeAt(index);
-          // deleteData(task);
+        key: UniqueKey(),
+        onDismissed: (direction) async {
+          await deleteData(task, index);
           Scaffold.of(context)
               .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
@@ -221,46 +179,6 @@ Widget _myListView(BuildContext context) {
     },
   );
 }
-
-// StreamBuilder<QuerySnapshot> (
-//   stream: Firestore.instance.collection('todo').snapshots(),
-//   builder: (context, snapshot) {
-//     if (!snapshot.hasData) {
-//       return CircularProgressIndicator();
-//     }
-//     final documents = snapshot.data.documents;
-//     return Expanded(
-//       child: documents.map((doc) =>
-//       _buildItemWidget(doc)
-//       )
-//     );
-//   }
-// )
-// (sstream: Firestore.instance.collection('todo').snapshots(),
-// builder: )
-
-// Widget _myListView(BuildContext context) {
-//   return ListView.builder(
-//     itemCount: _listTaskName.length,
-//     itemBuilder: (context, index) {
-//       final task = _listTaskName[index];
-//       return Dismissible(
-//         key: Key(task),
-//         onDismissed: (direction) {
-//           _listTaskName.removeAt(index);
-//           Scaffold.of(context)
-//               .showSnackBar(SnackBar(content: Text("$task dismissed")));
-//         },
-//         background: Card(color: Colors.blueGrey),
-//         child: Card(child: ListTile(title: Text(task))),
-//       );
-//       // return Card(
-//       //     child: ListTile(
-//       //   title: Text(task),
-//       // ));
-//     },
-//   );
-// }
 
 class CreateTask extends StatelessWidget {
   @override
@@ -274,12 +192,6 @@ class CreateTask extends StatelessWidget {
           TextField(
             controller: _myController,
             decoration: InputDecoration(labelText: 'Enter a task name'),
-            //controller: _take,
-            // validator: (_formKey) {
-            //   if (_formKey.isEmpty) {
-            //     return 'You must enter at least a letter';
-            //   }
-            // },
           ),
           Row(children: [
             RaisedButton(
@@ -291,10 +203,7 @@ class CreateTask extends StatelessWidget {
                 child: Text('OK'),
                 onPressed: () async {
                   _listTaskName.add(_myController.text);
-                  print(_listTaskName);
-
                   createRecord(_myController.text);
-
                   Navigator.pop(context);
                 }),
           ])
@@ -303,18 +212,9 @@ class CreateTask extends StatelessWidget {
 }
 
 class TaskManager extends _MyHomePageState {
-  // TaskManager() {};
-
   void addTask(String taskName, dueDate) {
-    // void addTask() {
-    // debugPrint(taskName);
     _listTaskName.clear();
-
-    // this._listTaskName.add('2');
     _listTaskName.add(taskName);
-    // _listDueDate.add(dueDate);
-    // if (!dueDate) _listDueDate.add(DateTime.now());
-    // else _listDueDate.add(dueDate);
 
     return;
   }
