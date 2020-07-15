@@ -1,6 +1,6 @@
-# TODO LIST (tentative name)
+# whendoi
 
-TODO LIST is a program written in flutter. This project was launched to study the features of Dart and Flutter.
+whendoi is a program written in flutter. This project was launched to study the features of Dart and Flutter.
 
 
 ### Todos
