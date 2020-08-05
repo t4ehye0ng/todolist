@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:whendoi/gradientAppBar.dart';
+import 'package:whendoi/login.dart';
 
 final _databaseReference = Firestore.instance;
 final _dbCollection = "todo";
@@ -13,7 +14,19 @@ void main() {
 class WhenDoI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    getData();
+    googleSignIn().then((user) {
+      return getData().then((data) {
+        return MaterialApp(
+          title: 'TO DO LIST by TKAY',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: HomePage(title: 'whendoi'),
+        );
+      });
+    });
+
     return MaterialApp(
       title: 'TO DO LIST by TKAY',
       theme: ThemeData(
