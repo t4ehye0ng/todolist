@@ -62,8 +62,27 @@ class _HomePageState extends State<HomePage> {
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-      // bottomNavigationBar: new BottomNavigationBar(),
+      bottomNavigationBar: new BottomNavigationBar(items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.business),
+          label: 'Business',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.logout),
+          label: 'Logout',
+        ),
+      ], onTap: _onItemTapped),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      googleSignOut();
+    });
   }
 
   void alert() {

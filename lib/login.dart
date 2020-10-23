@@ -15,6 +15,11 @@ Future<FirebaseUser> googleSignIn() async {
   return user;
 }
 
+Future<void> googleSignOut() async {
+  await GoogleSignIn().signOut();
+  print("Signed out");
+}
+
 // useGoogleApi() async {
 //   final _googleSignIn = new GoogleSignIn(
 //     scopes: [
