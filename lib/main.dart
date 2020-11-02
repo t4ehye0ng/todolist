@@ -3,9 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:whendoi/gradientAppBar.dart';
 import 'package:whendoi/login.dart';
+import 'package:whendoi/data.dart';
 
-final _databaseReference = Firestore.instance;
 final _dbCollection = "todo";
+final List<String> _listTaskName = [];
 
 void main() {
   runApp(WhenDoI());
@@ -15,7 +16,8 @@ class WhenDoI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     googleSignIn().then((user) {
-      return getData().then((data) {
+      findUserRecord(user);
+      return getData(_listTaskName).then((data) {
         return MaterialApp(
           title: 'TO DO LIST by TKAY',
           theme: ThemeData(
@@ -116,37 +118,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ]);
         });
-  }
-}
-
-final List<String> _listTaskName = [];
-
-Future<void> getData() async {
-  _databaseReference.collection(_dbCollection).getDocuments().then((QuerySnapshot snapshot) {
-    _listTaskName.clear();
-    snapshot.documents.forEach((element) => {_listTaskName.add(element.data['taskName'].toString())});
-  });
-}
-
-Future<void> createRecord(_taskName) async {
-  DocumentReference ref = await _databaseReference.collection(_dbCollection).add({
-    'taskName': _taskName,
-  });
-  print(ref.documentID);
-}
-
-Future<void> deleteData(_taskName, index) async {
-  try {
-    print("trying deleteData");
-    _databaseReference.collection(_dbCollection).getDocuments().then((QuerySnapshot snapshot) async {
-      var d = snapshot.documents[index];
-      print(d);
-      await Firestore.instance.runTransaction((Transaction myTransaction) async {
-        await myTransaction.delete(d.reference);
-      });
-    });
-  } catch (e) {
-    print(e.toString());
   }
 }
 
