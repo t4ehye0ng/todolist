@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:whendoi/gradientAppBar.dart';
 import 'package:whendoi/login.dart';
 import 'package:whendoi/data.dart';
+import 'package:whendoi/user.dart';
 
 final _dbCollection = "todo";
 final List<String> _listTaskName = [];
@@ -55,29 +57,34 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: Column(children: <Widget>[new GradientAppBar("whendoi"), new Expanded(child: BodyLayout())]),
+      body: Column(children: <Widget>[
+        new GradientAppBar("whendoi"),
+        new Expanded(child: BodyLayout())
+      ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTask()));
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => CreateTask()));
           setState(() {});
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-      bottomNavigationBar: new BottomNavigationBar(items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.business),
-          label: 'Business',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
-          label: 'Logout',
-        ),
-      ], onTap: _onItemTapped),
+      // bottomNavigationBar:
+      //     new BottomNavigationBar(items: const <BottomNavigationBarItem>[
+      //   BottomNavigationBarItem(
+      //     icon: Icon(Icons.home),
+      //     // label: 'Home',
+      //   ),
+      //   BottomNavigationBarItem(
+      //     icon: Icon(Icons.business),
+      //     // label: 'Business',
+      //   ),
+      //   BottomNavigationBarItem(
+      //     icon: Icon(Icons.logout),
+      //     label: 'Logout',
+      //   ),
+      // ], onTap: _onItemTapped),
     );
   }
 
@@ -98,7 +105,8 @@ class _HomePageState extends State<HomePage> {
                 child: ListBody(
                   children: <Widget>[
                     Text('This is a alert dialog.'),
-                    Text(DateFormat('yyyy-MM-dd – kk:mm').format(_selectedTime)),
+                    Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(_selectedTime)),
                     Text('Press OK button.'),
                   ],
                 ),
@@ -133,7 +141,8 @@ class BodyLayout extends StatelessWidget {
 
           final documents = snapshot.data.documents;
           _listTaskName.clear();
-          documents.forEach((doc) => {_listTaskName.add(doc.data["taskName"].toString())});
+          documents.forEach(
+              (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
           return _myListView(context);
         });
   }
@@ -148,7 +157,8 @@ Widget _myListView(BuildContext context) {
         key: UniqueKey(),
         onDismissed: (direction) async {
           await deleteData(task, index);
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text("$task dismissed")));
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
         background: Card(color: Colors.blueGrey),
         child: Card(child: ListTile(title: Text(task))),
