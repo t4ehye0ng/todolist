@@ -7,7 +7,8 @@ Future<FirebaseUser> googleSignIn() async {
   GoogleSignIn googleSignIn = GoogleSignIn();
   GoogleSignInAccount account = await googleSignIn.signIn();
   GoogleSignInAuthentication authentication = await account.authentication;
-  AuthCredential credential = GoogleAuthProvider.getCredential(idToken: authentication.idToken, accessToken: authentication.accessToken);
+  AuthCredential credential = GoogleAuthProvider.getCredential(
+      idToken: authentication.idToken, accessToken: authentication.accessToken);
   AuthResult authResult = await auth.signInWithCredential(credential);
   FirebaseUser user = authResult.user;
   print("AUTH COMPLETE");

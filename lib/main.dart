@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:whendoi/gradientAppBar.dart';
 import 'package:whendoi/login.dart';
-import 'package:whendoi/data.dart';
+import 'package:whendoi/task.dart';
 import 'package:whendoi/user.dart';
 
 final _dbCollection = "todo";
 final List<String> _listTaskName = [];
+final String _uID = "";
+final String _userName = "";
 
 void main() {
   runApp(WhenDoI());
@@ -17,19 +20,19 @@ void main() {
 class WhenDoI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    googleSignIn().then((user) {
-      findUserRecord(user);
-      return getData(_listTaskName).then((data) {
-        return MaterialApp(
-          title: 'TO DO LIST by TKAY',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-          ),
-          home: HomePage(title: 'whendoi'),
-        );
-      });
-    });
+    // googleSignIn().then((user) {
+    //   findUserRecord(user);
+    //   return getData(_listTaskName).then((data) {
+    //     return MaterialApp(
+    //       title: 'TO DO LIST by TKAY',
+    //       theme: ThemeData(
+    //         primarySwatch: Colors.blue,
+    //         visualDensity: VisualDensity.adaptivePlatformDensity,
+    //       ),
+    //       home: HomePage(title: 'whendoi'),
+    //     );
+    //   });
+    // });
 
     return MaterialApp(
       title: 'TO DO LIST by TKAY',
@@ -69,22 +72,22 @@ class _HomePageState extends State<HomePage> {
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-      // bottomNavigationBar:
-      //     new BottomNavigationBar(items: const <BottomNavigationBarItem>[
-      //   BottomNavigationBarItem(
-      //     icon: Icon(Icons.home),
-      //     // label: 'Home',
-      //   ),
-      //   BottomNavigationBarItem(
-      //     icon: Icon(Icons.business),
-      //     // label: 'Business',
-      //   ),
-      //   BottomNavigationBarItem(
-      //     icon: Icon(Icons.logout),
-      //     label: 'Logout',
-      //   ),
-      // ], onTap: _onItemTapped),
+      ),
+      bottomNavigationBar:
+          new BottomNavigationBar(items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.business),
+          label: 'Business',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.logout),
+          label: 'Logout',
+        ),
+      ], onTap: _onItemTapped),
     );
   }
 
@@ -189,8 +192,10 @@ class CreateTask extends StatelessWidget {
             RaisedButton(
                 child: Text('OK'),
                 onPressed: () async {
-                  _listTaskName.add(_myController.text);
-                  createRecord(_myController.text);
+                  print(_userName);
+                  // print(_myController.text);
+                  // _listTaskName.add(_myController.text);
+                  // createRecord(_user, _myController.text);
                   Navigator.pop(context);
                 }),
           ])
