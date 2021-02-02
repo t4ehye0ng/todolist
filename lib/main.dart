@@ -25,18 +25,10 @@ class WhenDoI extends StatelessWidget {
       findUserRecord(user).then((user2) {
         _uID = user2.uid;
         _displayName = user2.displayName;
-
         getTaskList(_uID, _listTaskName);
-        // print("findUser");
-        // print(_listTaskName);
-        // getTaskList(_uID, _listTaskName).then((value) =>
-        //     {print("then"), print(_listTaskName), buildTaskListView(context)});
-
-        // print("getData");
       });
     });
-    //.then((user) {
-    //findUserRecord(user);
+
     return MaterialApp(
       title: '',
       theme: ThemeData(
@@ -45,30 +37,6 @@ class WhenDoI extends StatelessWidget {
       ),
       home: RootPage(title: 'whendoi'),
     );
-    // });
-
-    // googleSignIn().then((user) {
-    //   findUserRecord(user);
-    //   return getData(_listTaskName).then((data) {
-    //     return MaterialApp(
-    //       title: '',
-    //       theme: ThemeData(
-    //         primarySwatch: Colors.blue,
-    //         visualDensity: VisualDensity.adaptivePlatformDensity,
-    //       ),
-    //       home: HomePage(title: 'whendoi'),
-    //     );
-    //   });
-    // });
-
-    // return MaterialApp(
-    //   title: '',
-    //   theme: ThemeData(
-    //     primarySwatch: Colors.blue,
-    //     visualDensity: VisualDensity.adaptivePlatformDensity,
-    //   ),
-    //   home: RootPage(title: 'whendoi'),
-    // );
   }
 }
 
@@ -89,7 +57,7 @@ class _RootPageState extends State<RootPage> {
     return new Scaffold(
       body: Column(children: <Widget>[
         new GradientAppBar("whendoi"),
-        new Expanded(child: buildTaskListView(context))
+        new Expanded(child: buildTaskListView(context)),
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -229,26 +197,10 @@ class CreateTask extends StatelessWidget {
                 onPressed: () async {
                   print("before getTaskList");
                   addTask(_uID, _myController.text).then((value) =>
-                      getTaskList(_uID, _listTaskName).then((value) => {
-                            print("after click"),
-                            print(_listTaskName),
-
-                            // buildTaskListView(context)
-                          }));
-
-                  // createRecord(_user, _myController.text);
-                  Navigator.pop(context);
+                      getTaskList(_uID, _listTaskName)
+                          .then((value) => {Navigator.pop(context)}));
                 }),
           ])
         ]));
   }
 }
-
-// class TaskManager extends _RootPageState {
-//   void addTask(String taskName, dueDate) {
-//     _listTaskName.clear();
-//     _listTaskName.add(taskName);
-
-//     return;
-//   }
-// }
