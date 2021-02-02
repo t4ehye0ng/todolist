@@ -10,7 +10,7 @@ import 'package:whendoi/user.dart';
 
 // final _dbCollection = "users";
 final String _dbCollection = "users";
-final List<String> _listTaskName = [];
+List<String> _listTaskName = [];
 String _uID = "";
 String _displayName = "";
 
@@ -25,6 +25,14 @@ class WhenDoI extends StatelessWidget {
       findUserRecord(user).then((user2) {
         _uID = user2.uid;
         _displayName = user2.displayName;
+
+        getTaskList(_uID, _listTaskName);
+        // print("findUser");
+        // print(_listTaskName);
+        // getTaskList(_uID, _listTaskName).then((value) =>
+        //     {print("then"), print(_listTaskName), buildTaskListView(context)});
+
+        // print("getData");
       });
     });
     //.then((user) {
@@ -81,7 +89,7 @@ class _RootPageState extends State<RootPage> {
     return new Scaffold(
       body: Column(children: <Widget>[
         new GradientAppBar("whendoi"),
-        //new Expanded(child: TaskList())
+        new Expanded(child: buildTaskListView(context))
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -151,26 +159,10 @@ class _RootPageState extends State<RootPage> {
   }
 }
 
-class TaskList extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection(_dbCollection).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
-          }
-          final documents = snapshot.data.documents;
-          print("uID: " + _uID);
-          _listTaskName.clear();
-          documents.forEach(
-              (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
-          return _myListView(context);
-        });
-  }
-}
-
-Widget _myListView(BuildContext context) {
+Widget buildTaskListView(BuildContext context) {
+  print("buildTaskListView");
+  print(_listTaskName);
+  // await getTaskList(_uID, _listTaskName);
   return ListView.builder(
     itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
@@ -188,6 +180,30 @@ Widget _myListView(BuildContext context) {
     },
   );
 }
+
+// class BuildTaskList extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamBuilder<QuerySnapshot>(
+//         stream: Firestore.instance.collection(_dbCollection).snapshots(),
+//         builder: (context, snapshot) {
+//           if (!snapshot.hasData) {
+//             return CircularProgressIndicator();
+//           }
+//           print("builder works");
+//           //     builder: (context, snapshot) {
+//           //       if (!snapshot.hasData) {
+//           //         return CircularProgressIndicator();
+//           //       }
+//           //       final documents = snapshot.data.documents;
+//           //       print("uID: " + _uID);
+//           //       _listTaskName.clear();
+//           //       documents.forEach(
+//           //           (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
+//           //       return _myListView(context);
+//         });
+//   }
+// }
 
 class CreateTask extends StatelessWidget {
   @override
@@ -211,8 +227,15 @@ class CreateTask extends StatelessWidget {
             RaisedButton(
                 child: Text('OK'),
                 onPressed: () async {
-                  // print(_myController.text);
-                  // _listTaskName.add(_myController.text);
+                  print("before getTaskList");
+                  addTask(_uID, _myController.text).then((value) =>
+                      getTaskList(_uID, _listTaskName).then((value) => {
+                            print("after click"),
+                            print(_listTaskName),
+
+                            // buildTaskListView(context)
+                          }));
+
                   // createRecord(_user, _myController.text);
                   Navigator.pop(context);
                 }),
@@ -221,11 +244,11 @@ class CreateTask extends StatelessWidget {
   }
 }
 
-class TaskManager extends _RootPageState {
-  void addTask(String taskName, dueDate) {
-    _listTaskName.clear();
-    _listTaskName.add(taskName);
+// class TaskManager extends _RootPageState {
+//   void addTask(String taskName, dueDate) {
+//     _listTaskName.clear();
+//     _listTaskName.add(taskName);
 
-    return;
-  }
-}
+//     return;
+//   }
+// }
