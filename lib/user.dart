@@ -3,10 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 final _databaseReference = Firestore.instance;
 final _userCollection = "users";
+// final _loggedUser = new userData();
 // final FirebaseUser _user = null;
+String _uid = "";
+String _userName = "";
 
-Future<void> findUserRecord(FirebaseUser user) async {
-  print(user.uid);
+Future<FirebaseUser> findUserRecord(FirebaseUser user) async {
+  print("user.uid: " + user.uid);
   _databaseReference
       .collection(_userCollection)
       .document(user.uid)
@@ -23,8 +26,6 @@ Future<void> findUserRecord(FirebaseUser user) async {
           })
       .catchError((onError) => {print("Error getting document: " + onError)});
 
-  final _user = user;
-  print(_user);
   return user;
 }
 
@@ -34,4 +35,17 @@ Future<void> createUserRecord(FirebaseUser user) async {
       .collection(_userCollection)
       .document(user.uid)
       .setData({'displayName': user.displayName});
+}
+
+String getUid() {
+  return _uid;
+}
+
+String getUserName() {
+  return _userName;
+}
+
+class userData {
+  String uid;
+  String displayName;
 }

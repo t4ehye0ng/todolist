@@ -8,10 +8,11 @@ import 'package:whendoi/login.dart';
 import 'package:whendoi/task.dart';
 import 'package:whendoi/user.dart';
 
-final _dbCollection = "todo";
+// final _dbCollection = "users";
+final String _dbCollection = "users";
 final List<String> _listTaskName = [];
-final String _uID = "";
-final String _userName = "";
+String _uID = "";
+String _displayName = "";
 
 void main() {
   runApp(WhenDoI());
@@ -20,11 +21,29 @@ void main() {
 class WhenDoI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    googleSignIn().then((user) {
+      findUserRecord(user).then((user2) {
+        _uID = user2.uid;
+        _displayName = user2.displayName;
+      });
+    });
+    //.then((user) {
+    //findUserRecord(user);
+    return MaterialApp(
+      title: '',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: RootPage(title: 'whendoi'),
+    );
+    // });
+
     // googleSignIn().then((user) {
     //   findUserRecord(user);
     //   return getData(_listTaskName).then((data) {
     //     return MaterialApp(
-    //       title: 'TO DO LIST by TKAY',
+    //       title: '',
     //       theme: ThemeData(
     //         primarySwatch: Colors.blue,
     //         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -34,27 +53,27 @@ class WhenDoI extends StatelessWidget {
     //   });
     // });
 
-    return MaterialApp(
-      title: 'TO DO LIST by TKAY',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomePage(title: 'whendoi'),
-    );
+    // return MaterialApp(
+    //   title: '',
+    //   theme: ThemeData(
+    //     primarySwatch: Colors.blue,
+    //     visualDensity: VisualDensity.adaptivePlatformDensity,
+    //   ),
+    //   home: RootPage(title: 'whendoi'),
+    // );
   }
 }
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class RootPage extends StatefulWidget {
+  RootPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _RootPageState createState() => _RootPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _RootPageState extends State<RootPage> {
   DateTime _selectedTime;
 
   @override
@@ -62,7 +81,7 @@ class _HomePageState extends State<HomePage> {
     return new Scaffold(
       body: Column(children: <Widget>[
         new GradientAppBar("whendoi"),
-        new Expanded(child: BodyLayout())
+        //new Expanded(child: TaskList())
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -132,7 +151,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class BodyLayout extends StatelessWidget {
+class TaskList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -141,8 +160,8 @@ class BodyLayout extends StatelessWidget {
           if (!snapshot.hasData) {
             return CircularProgressIndicator();
           }
-
           final documents = snapshot.data.documents;
+          print("uID: " + _uID);
           _listTaskName.clear();
           documents.forEach(
               (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
@@ -192,7 +211,6 @@ class CreateTask extends StatelessWidget {
             RaisedButton(
                 child: Text('OK'),
                 onPressed: () async {
-                  print(_userName);
                   // print(_myController.text);
                   // _listTaskName.add(_myController.text);
                   // createRecord(_user, _myController.text);
@@ -203,7 +221,7 @@ class CreateTask extends StatelessWidget {
   }
 }
 
-class TaskManager extends _HomePageState {
+class TaskManager extends _RootPageState {
   void addTask(String taskName, dueDate) {
     _listTaskName.clear();
     _listTaskName.add(taskName);
