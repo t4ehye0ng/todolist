@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:whendoi/gradientAppBar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-final _databaseReference = Firestore.instance;
-final _dbCollection = "todo";
+import 'package:whendoi/gradientAppBar.dart';
+import 'package:whendoi/login.dart';
+import 'package:whendoi/task.dart';
+import 'package:whendoi/user.dart';
+
+// final _dbCollection = "users";
+final String _dbCollection = "users";
+List<String> _listTaskName = [];
+String _uID = "";
+String _displayName = "";
 
 void main() {
   runApp(WhenDoI());
@@ -13,44 +21,75 @@ void main() {
 class WhenDoI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    getData();
+    googleSignIn().then((user) {
+      findUserRecord(user).then((user2) {
+        _uID = user2.uid;
+        _displayName = user2.displayName;
+        getTaskList(_uID, _listTaskName);
+      });
+    });
+
     return MaterialApp(
-      title: 'TO DO LIST by TKAY',
+      title: '',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(title: 'whendoi'),
+      home: RootPage(title: 'whendoi'),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+class RootPage extends StatefulWidget {
+  RootPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _RootPageState createState() => _RootPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _RootPageState extends State<RootPage> {
   DateTime _selectedTime;
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: Column(children: <Widget>[new GradientAppBar("whendoi"), new Expanded(child: BodyLayout())]),
+      body: Column(children: <Widget>[
+        new GradientAppBar("whendoi"),
+        new Expanded(child: buildTaskListView(context)),
+      ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTask()));
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => CreateTask()));
           setState(() {});
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-      // bottomNavigationBar: new BottomNavigationBar(),
+      ),
+      bottomNavigationBar:
+          new BottomNavigationBar(items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.business),
+          label: 'Business',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.logout),
+          label: 'Logout',
+        ),
+      ], onTap: _onItemTapped),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      googleSignOut();
+    });
   }
 
   void alert() {
@@ -64,7 +103,8 @@ class _HomePageState extends State<HomePage> {
                 child: ListBody(
                   children: <Widget>[
                     Text('This is a alert dialog.'),
-                    Text(DateFormat('yyyy-MM-dd – kk:mm').format(_selectedTime)),
+                    Text(
+                        DateFormat('yyyy-MM-dd – kk:mm').format(_selectedTime)),
                     Text('Press OK button.'),
                   ],
                 ),
@@ -87,56 +127,10 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-final List<String> _listTaskName = [];
-
-Future<void> getData() async {
-  _databaseReference.collection(_dbCollection).getDocuments().then((QuerySnapshot snapshot) {
-    _listTaskName.clear();
-    snapshot.documents.forEach((element) => {_listTaskName.add(element.data['taskName'].toString())});
-  });
-}
-
-Future<void> createRecord(_taskName) async {
-  DocumentReference ref = await _databaseReference.collection(_dbCollection).add({
-    'taskName': _taskName,
-  });
-  print(ref.documentID);
-}
-
-Future<void> deleteData(_taskName, index) async {
-  try {
-    print("trying deleteData");
-    _databaseReference.collection(_dbCollection).getDocuments().then((QuerySnapshot snapshot) async {
-      var d = snapshot.documents[index];
-      print(d);
-      await Firestore.instance.runTransaction((Transaction myTransaction) async {
-        await myTransaction.delete(d.reference);
-      });
-    });
-  } catch (e) {
-    print(e.toString());
-  }
-}
-
-class BodyLayout extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection(_dbCollection).snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return CircularProgressIndicator();
-          }
-
-          final documents = snapshot.data.documents;
-          _listTaskName.clear();
-          documents.forEach((doc) => {_listTaskName.add(doc.data["taskName"].toString())});
-          return _myListView(context);
-        });
-  }
-}
-
-Widget _myListView(BuildContext context) {
+Widget buildTaskListView(BuildContext context) {
+  print("buildTaskListView");
+  print(_listTaskName);
+  // await getTaskList(_uID, _listTaskName);
   return ListView.builder(
     itemCount: _listTaskName.length,
     itemBuilder: (context, index) {
@@ -145,7 +139,8 @@ Widget _myListView(BuildContext context) {
         key: UniqueKey(),
         onDismissed: (direction) async {
           await deleteData(task, index);
-          Scaffold.of(context).showSnackBar(SnackBar(content: Text("$task dismissed")));
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text("$task dismissed")));
         },
         background: Card(color: Colors.blueGrey),
         child: Card(child: ListTile(title: Text(task))),
@@ -153,6 +148,30 @@ Widget _myListView(BuildContext context) {
     },
   );
 }
+
+// class BuildTaskList extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamBuilder<QuerySnapshot>(
+//         stream: Firestore.instance.collection(_dbCollection).snapshots(),
+//         builder: (context, snapshot) {
+//           if (!snapshot.hasData) {
+//             return CircularProgressIndicator();
+//           }
+//           print("builder works");
+//           //     builder: (context, snapshot) {
+//           //       if (!snapshot.hasData) {
+//           //         return CircularProgressIndicator();
+//           //       }
+//           //       final documents = snapshot.data.documents;
+//           //       print("uID: " + _uID);
+//           //       _listTaskName.clear();
+//           //       documents.forEach(
+//           //           (doc) => {_listTaskName.add(doc.data["taskName"].toString())});
+//           //       return _myListView(context);
+//         });
+//   }
+// }
 
 class CreateTask extends StatelessWidget {
   @override
@@ -176,20 +195,12 @@ class CreateTask extends StatelessWidget {
             RaisedButton(
                 child: Text('OK'),
                 onPressed: () async {
-                  _listTaskName.add(_myController.text);
-                  createRecord(_myController.text);
-                  Navigator.pop(context);
+                  print("before getTaskList");
+                  addTask(_uID, _myController.text).then((value) =>
+                      getTaskList(_uID, _listTaskName)
+                          .then((value) => {Navigator.pop(context)}));
                 }),
           ])
         ]));
-  }
-}
-
-class TaskManager extends _HomePageState {
-  void addTask(String taskName, dueDate) {
-    _listTaskName.clear();
-    _listTaskName.add(taskName);
-
-    return;
   }
 }

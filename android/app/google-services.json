@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:934884214792:android:1772caaad511a7a8ac69bd",
+        "mobilesdk_app_id": "1:934884214792:android:6cfcbeb23d1f91ecac69bd",
         "android_client_info": {
-          "package_name": "com.example.todolist"
+          "package_name": "com.the5ducks.whendoi"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "934884214792-5usub2n1l2rvdokb071pmkatkng16m8h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.the5ducks.whendoi",
+            "certificate_hash": "b1be4511c74a2d1c31947dba70c1009ee0507d55"
+          }
+        },
         {
           "client_id": "934884214792-bs73jnkkkq33ircatmm2kl32i3c191o0.apps.googleusercontent.com",
           "client_type": 3
