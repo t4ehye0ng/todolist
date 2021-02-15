@@ -61,10 +61,16 @@ class _RootPageState extends State<RootPage> {
         new Expanded(child: buildTaskListView(context)),
       ]),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-              context, MaterialPageRoute(builder: (context) => CreateTask()));
-          setState(() {});
+        onPressed: () {
+          DatePicker.showDatePicker(context,
+              showTitleActions: true,
+              minTime: DateTime.now(),
+              maxTime: DateTime.now().add(new Duration(days: 365 * 10)),
+              onChanged: (date) {
+            print('change $date');
+          }, onConfirm: (date) {
+            print('confirm $date');
+          }, currentTime: DateTime.now(), locale: LocaleType.ko);
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
