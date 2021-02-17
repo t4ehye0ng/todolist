@@ -60,8 +60,9 @@ class _RootPageState extends State<RootPage> {
         new Expanded(child: buildTaskListView(context)),
       ]),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          PopUpTaskCreator(context);
+        onPressed: () async {
+          await Navigator.push(
+              context, MaterialPageRoute(builder: (context) => CreateTask()));
           setState(() {});
         },
         tooltip: 'Show date picker',
@@ -187,6 +188,13 @@ class CreateTask extends StatelessWidget {
           ),
           Row(children: [
             RaisedButton(
+                child: Text('Time'),
+                onPressed: () async {
+                  PopUpTaskCreator(context);
+                }),
+          ]),
+          Row(children: [
+            RaisedButton(
                 child: Text('Cancel'),
                 onPressed: () {
                   Navigator.pop(context);
@@ -199,7 +207,7 @@ class CreateTask extends StatelessWidget {
                       getTaskList(_uID, _listTaskName)
                           .then((value) => {Navigator.pop(context)}));
                 }),
-          ])
+          ]),
         ]));
   }
 }
