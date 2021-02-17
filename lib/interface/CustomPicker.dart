@@ -1,3 +1,19 @@
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+
+class PopUpTaskCreator {
+  PopUpTaskCreator(context) {
+    DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        minTime: DateTime.now(),
+        maxTime: DateTime.now().add(new Duration(days: 365 * 10)),
+        onChanged: (date) {
+      print('change $date');
+    }, onConfirm: (date) {
+      print('confirm $date');
+    }, currentTime: DateTime.now(), locale: LocaleType.ko);
+  }
+}
+
 class CustomPicker extends CommonPickerModel {
   String digits(int value, int length) {
     return '$value'.padLeft(length, "0");

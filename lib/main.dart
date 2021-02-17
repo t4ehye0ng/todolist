@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 import 'package:whendoi/layout/gradientAppBar.dart';
+import 'package:whendoi/interface/CustomPicker.dart';
 import 'package:whendoi/auth/login.dart';
 import 'package:whendoi/firebase/task.dart';
 import 'package:whendoi/firebase/user.dart';
@@ -62,15 +61,8 @@ class _RootPageState extends State<RootPage> {
       ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          DatePicker.showDatePicker(context,
-              showTitleActions: true,
-              minTime: DateTime.now(),
-              maxTime: DateTime.now().add(new Duration(days: 365 * 10)),
-              onChanged: (date) {
-            print('change $date');
-          }, onConfirm: (date) {
-            print('confirm $date');
-          }, currentTime: DateTime.now(), locale: LocaleType.ko);
+          PopUpTaskCreator(context);
+          setState(() {});
         },
         tooltip: 'Show date picker',
         child: Icon(Icons.add),
