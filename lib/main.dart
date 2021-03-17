@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
-import 'package:whendoi/gradientAppBar.dart';
-import 'package:whendoi/login.dart';
-import 'package:whendoi/task.dart';
-import 'package:whendoi/user.dart';
+import 'package:whendoi/layout/gradientAppBar.dart';
+import 'package:whendoi/interface/CustomPicker.dart';
+import 'package:whendoi/auth/login.dart';
+import 'package:whendoi/firebase/task.dart';
+import 'package:whendoi/firebase/user.dart';
 
 // final _dbCollection = "users";
 final String _dbCollection = "users";
@@ -188,6 +188,13 @@ class CreateTask extends StatelessWidget {
           ),
           Row(children: [
             RaisedButton(
+                child: Text('Time'),
+                onPressed: () async {
+                  PopUpTaskCreator(context);
+                }),
+          ]),
+          Row(children: [
+            RaisedButton(
                 child: Text('Cancel'),
                 onPressed: () {
                   Navigator.pop(context);
@@ -200,7 +207,7 @@ class CreateTask extends StatelessWidget {
                       getTaskList(_uID, _listTaskName)
                           .then((value) => {Navigator.pop(context)}));
                 }),
-          ])
+          ]),
         ]));
   }
 }

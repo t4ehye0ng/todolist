@@ -44,8 +44,3 @@ String getUid() {
 String getUserName() {
   return _userName;
 }
-
-class userData {
-  String uid;
-  String displayName;
-}
